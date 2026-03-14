@@ -58,7 +58,8 @@ function RoomPage({ title, devices, deviceList, refreshDevices }) {
 
             <div
               key={device}
-              className="flex justify-between items-center p-4 bg-white/40 rounded-lg"
+              className="flex justify-between items-center p-4 bg-white/40 rounded-lg 
+hover:scale-[1.02] hover:bg-white/50 transition duration-200"
             >
 
               <div>
@@ -82,14 +83,16 @@ function RoomPage({ title, devices, deviceList, refreshDevices }) {
 
                   <>
                     <button
-                      className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg 
+hover:bg-green-600 active:scale-95 transition"
                       onClick={() => sendCommand(device, "lock")}
                     >
                       LOCK
                     </button>
 
                     <button
-                      className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                      className="bg-red-500 text-white px-3 py-1 rounded-lg 
+hover:bg-red-600 active:scale-95 transition"
                       onClick={() => sendCommand(device, "unlock")}
                     >
                       UNLOCK
@@ -100,14 +103,16 @@ function RoomPage({ title, devices, deviceList, refreshDevices }) {
 
                   <>
                     <button
-                      className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg 
+hover:bg-green-600 active:scale-95 transition"
                       onClick={() => sendCommand(device, "turn on")}
                     >
                       ON
                     </button>
 
                     <button
-                      className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                      className="bg-red-500 text-white px-3 py-1 rounded-lg 
+hover:bg-red-600 active:scale-95 transition"
                       onClick={() => sendCommand(device, "turn off")}
                     >
                       OFF

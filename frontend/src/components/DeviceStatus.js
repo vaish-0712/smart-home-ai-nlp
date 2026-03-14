@@ -52,7 +52,7 @@ function DeviceStatus({ devices, refreshDevices }) {
 
   return (
 
-    <div className="mt-10">
+    <div className="mt-10 animate-fadeIn">
 
       <h2 className="text-xl font-bold mb-6 text-white">
         Home Devices
@@ -66,7 +66,8 @@ function DeviceStatus({ devices, refreshDevices }) {
 
           <div
             key={room}
-            className="bg-white/20 backdrop-blur-md p-5 rounded-xl shadow-lg"
+            className="bg-white/20 backdrop-blur-md p-5 rounded-xl shadow-lg 
+hover:shadow-2xl hover:-translate-y-1 transition duration-300"
           >
 
             <h3 className="text-lg font-semibold mb-4 text-white">
@@ -83,7 +84,8 @@ function DeviceStatus({ devices, refreshDevices }) {
 
                   <div
                     key={device}
-                    className="flex justify-between items-center p-4 bg-white/40 rounded-lg"
+                    className="flex justify-between items-center p-4 bg-white/40 rounded-lg 
+hover:scale-[1.02] hover:bg-white/50 transition duration-200"
                   >
 
                     <div>
@@ -108,14 +110,16 @@ function DeviceStatus({ devices, refreshDevices }) {
                         <>
 
                           <button
-                            className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg 
+hover:bg-green-600 active:scale-95 transition"
                             onClick={() => sendCommand(device, "lock")}
                           >
                             LOCK
                           </button>
 
                           <button
-                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                           className="bg-red-500 text-white px-3 py-1 rounded-lg 
+hover:bg-red-600 active:scale-95 transition"
                             onClick={() => sendCommand(device, "unlock")}
                           >
                             UNLOCK
@@ -128,14 +132,16 @@ function DeviceStatus({ devices, refreshDevices }) {
                         <>
 
                           <button
-                            className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg 
+hover:bg-green-600 active:scale-95 transition"
                             onClick={() => sendCommand(device, "turn on")}
                           >
                             ON
                           </button>
 
                           <button
-                            className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                            className="bg-red-500 text-white px-3 py-1 rounded-lg 
+hover:bg-red-600 active:scale-95 transition"
                             onClick={() => sendCommand(device, "turn off")}
                           >
                             OFF

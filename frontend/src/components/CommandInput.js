@@ -8,34 +8,83 @@ function CommandInput({ refreshDevices, refreshLogs }) {
 
   const sendCommand = async (text) => {
 
-    const commandText = text || command;
+  const commandText = text || command;
 
-    if (!commandText.trim()) return;
+  if (!commandText.trim()) return;
 
-    try {
+  try {
 
-      await fetch("http://127.0.0.1:8000/command", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: commandText })
-      });
+    const response = await fetch("http://127.0.0.1:8000/command", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text: commandText })
+    });
 
-      setStatus("✅ Command executed");
+    const data = await response.json();
+    // SMART SPEECH RESPONSE
 
-      setCommand("");
+if (data.actions && data.actions.length > 0) {
 
-      refreshDevices();
-      refreshLogs();
+  const action = data.actions[0];
+  const device = action.device.replace("_", " ");
+  const act = action.action;
 
-    } catch (error) {
+  if (act === "on") {
+    speak(`${device} turned on`);
+  }
 
-      setStatus("⚠ Backend connection error");
+  else if (act === "off") {
+    speak(`${device} turned off`);
+  }
 
-    }
-  };
+  else if (act === "lock") {
+    speak(`${device} locked`);
+  }
 
+  else if (act === "unlock") {
+    speak(`${device} unlocked`);
+  }
+
+  else if (act === "arm") {
+    speak(`${device} armed`);
+  }
+
+  else if (act === "disarm") {
+    speak(`${device} disarmed`);
+  }
+
+}
+
+else if (data.message === "mode executed") {
+
+  speak("Automation mode activated");
+
+}
+
+else {
+
+  speak("Command executed");
+
+}
+
+
+    setStatus("✅ Command executed");
+
+    setCommand("");
+
+    refreshDevices();
+    refreshLogs();
+
+  } catch (error) {
+
+    setStatus("⚠ Backend connection error");
+    speak("Backend connection error");
+
+  }
+
+};
   const startVoiceRecognition = () => {
 
     const SpeechRecognition =
@@ -68,7 +117,31 @@ function CommandInput({ refreshDevices, refreshLogs }) {
     recognition.onend = () => {
       setListening(false);
     };
+
   };
+
+  function speak(text) {
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  const voices = window.speechSynthesis.getVoices();
+
+  // choose a good voice
+  const preferredVoice = voices.find(
+    voice => voice.name.includes("Samantha") || voice.name.includes("Google")
+  );
+
+  if (preferredVoice) {
+    speech.voice = preferredVoice;
+  }
+
+  speech.rate = 0.95;
+  speech.pitch = 1;
+  speech.volume = 1;
+
+  window.speechSynthesis.speak(speech);
+
+}
 
   return (
 
@@ -105,6 +178,7 @@ function CommandInput({ refreshDevices, refreshLogs }) {
       )}
 
     </div>
+
   );
 }
 
