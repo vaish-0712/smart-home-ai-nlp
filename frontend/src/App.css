@@ -1,0 +1,128 @@
+body {
+  background-color: #f4f6f8;
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+}
+
+.dashboard {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px;
+}
+
+.title {
+  text-align: center;
+  font-size: 40px;
+  margin-bottom: 40px;
+}
+
+.section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+/* Command input */
+
+input {
+  padding: 10px;
+  width: 320px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.on-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.off-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.lock-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.unlock-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* Device cards */
+
+.device-card {
+  border: 1px solid #e5e5e5;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Room grid */
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+/* Room title */
+
+.room {
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* command history */
+
+.history-item {
+  border-bottom: 1px solid #e5e5e5;
+  padding: 10px 0;
+}
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.room {
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.device-card {
+  border: 1px solid #e5e5e5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
