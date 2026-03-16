@@ -13,7 +13,7 @@ function Login({ setLoggedIn }) {
     const voices = window.speechSynthesis.getVoices();
      // choose a good voice
   const preferredVoice = voices.find(
-    voice => voice.name.includes("Alexa") || voice.name.includes("Google")
+    voice => voice.name.includes("Samantha") || voice.name.includes("Google")
   );
 
   if (preferredVoice) {

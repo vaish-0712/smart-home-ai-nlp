@@ -27,7 +27,7 @@ function RoomPage({ title, devices, deviceList, refreshDevices }) {
       ? `${action} ${device}`
       : `${action} ${device}`;
 
-  await fetch("http://127.0.0.1:8000/command", {
+  await fetch("https://web-production-b9b1b.up.railway.app/command/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

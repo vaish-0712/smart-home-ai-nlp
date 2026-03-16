@@ -18,7 +18,7 @@ function App() {
   const refreshDevices = useCallback(async () => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/devices");
+      const response = await fetch("https://web-production-b9b1b.up.railway.app/devices/");
       const data = await response.json();
       setDevices(data);
     } catch (error) {
@@ -30,7 +30,7 @@ function App() {
   const refreshLogs = useCallback(async () => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/logs");
+      const response = await fetch("https://web-production-b9b1b.up.railway.app/logs/");
       const data = await response.json();
       setLogs(data);
     } catch (error) {

@@ -8,22 +8,19 @@ function DeviceStatus({ devices, refreshDevices }) {
 
   const sendCommand = async (device, action) => {
 
-    const text =
-      action === "lock" || action === "unlock"
-        ? `${action} ${device}`
-        : `${action} ${device}`;
+  const text =
+    action === "lock" || action === "unlock"
+      ? `${action} ${device}`
+      : `${action} ${device}`;
 
-    await fetch("http://127.0.0.1:8000/command", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ text })
-    });
+  await fetch("https://web-production-b9b1b.up.railway.app/command/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text })
+  });
 
-    refreshDevices();
-  };
-
+  refreshDevices();
+};
   const getIcon = (device) => {
 
     switch (device) {

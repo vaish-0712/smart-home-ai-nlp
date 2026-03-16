@@ -14,13 +14,11 @@ function CommandInput({ refreshDevices, refreshLogs }) {
 
   try {
 
-    const response = await fetch("http://127.0.0.1:8000/command", {
+    const response = await fetch("https://web-production-b9b1b.up.railway.app/command/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: commandText })
-    });
+});
 
     const data = await response.json();
     // SMART SPEECH RESPONSE
