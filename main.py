@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 from nlp_engine import detect_intent
@@ -14,13 +13,12 @@ app = FastAPI()
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-templates = Jinja2Templates(directory="templates")
 
 
 # Request schema
@@ -132,3 +130,6 @@ def view_logs():
 @app.get("/devices")
 def get_devices():
     return devices
+@app.get("/")
+def home():
+    return {"message": "Smart Home AI Backend Running"}

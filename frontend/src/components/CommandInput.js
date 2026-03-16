@@ -57,10 +57,11 @@ if (data.actions && data.actions.length > 0) {
 
 }
 
-else if (data.message === "mode executed") {
 
-  speak("Automation mode activated");
 
+if (data.message === "mode executed") {
+  setStatus(`🎬 "${commandText}" mode activated`);
+  speak(`${commandText} mode activated`);
 }
 
 else {
@@ -70,7 +71,7 @@ else {
 }
 
 
-    setStatus("✅ Command executed");
+    setStatus(`✅ "${commandText}" executed`);
 
     setCommand("");
 
@@ -154,7 +155,7 @@ else {
         value={command}
         onChange={(e) => setCommand(e.target.value)}
         placeholder="Enter command..."
-        style={{ padding: "8px", width: "300px" }}
+        style={{ padding: "8px", width: "300px" ,color: "black"  }}
       />
 
       <button

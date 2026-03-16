@@ -34,6 +34,10 @@ def away_mode():
 
     update_device("lights", "off")
     update_device("tv", "off")
+    update_device("speaker","off")
+    update_device("ac", "off")
+    update_device("exhaust_fan","off")
+    update_device("water_heater", "off")
     update_device("heater", "off")
     update_device("door", "lock")
     update_device("alarm", "arm")

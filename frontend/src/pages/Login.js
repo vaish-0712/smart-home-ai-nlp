@@ -1,23 +1,49 @@
 import React, { useState } from "react";
 
+
 function Login({ setLoggedIn }) {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+
+  function speak(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+     // choose a good voice
+  const preferredVoice = voices.find(
+    voice => voice.name.includes("Alexa") || voice.name.includes("Google")
+  );
+
+  if (preferredVoice) {
+    speech.voice = preferredVoice;
+  }
+    speech.lang = "en-US";
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
+
+}
+
   const handleLogin = () => {
 
-    // simple demo credentials
-    const demoUser = "admin";
-    const demoPass = "1234";
+  const demoUser = "admin";
+  const demoPass = "1234";
 
-    if (username === demoUser && password === demoPass) {
-      setLoggedIn(true);
-    } else {
-      setError("Invalid username or password");
-    }
-  };
+  if (username === demoUser && password === demoPass) {
+
+    setLoggedIn(true);
+
+    speak("Welcome to your smart home Vaishnavi");
+
+  } else {
+
+    setError("Invalid username or password");
+
+  }
+
+};
 
   return (
 
