@@ -33,10 +33,7 @@ off_words = ["turn off", "switch off", "stop", "disable"]
 # ---------------- TEXT NORMALIZATION ----------------
 
 def normalize_text(text):
-
     text = text.lower()
-
-    # remove punctuation
     text = re.sub(r"[^\w\s]", "", text)
 
     fillers = [
@@ -60,7 +57,6 @@ def detect_intent(text):
     text = normalize_text(text)
 
     # ---------------- DEVICE ALIASES ----------------
-
     for alias, real_device in device_alias.items():
         text = re.sub(rf"\b{alias}\b", real_device, text)
 
@@ -78,24 +74,35 @@ def detect_intent(text):
     if "away mode" in text or "leaving" in text or "away" in text:
         return {"intent": "mode", "mode": "away"}
 
-    # ---------------- CONTEXT COMMANDS ----------------
+    # ---------------- CONTEXT COMMANDS (FIXED POSITION) ----------------
 
-    if "cool the room" in text or "im hot" in text:
+    if "dark" in text or "too dark" in text or "its dark" in text:
         return {
             "intent": "multi_device",
-            "actions": [
-                {"device": "ac", "action": "cool"}
-            ]
+            "actions": [{"device": "lights", "action": "on"}]
         }
+
+    if any(x in text for x in ["im hot", "i am hot", "feeling hot", "too hot"]):
+        return {
+            "intent": "multi_device",
+            "actions": [{"device": "ac", "action": "on"}]
+        }
+
+    if "cold" in text or "freezing" in text:
+        return {
+            "intent": "multi_device",
+            "actions": [{"device": "heater", "action": "on"}]
+        }
+
+    if "leaving the house" in text:
+        return {"intent": "mode", "mode": "away"}
 
     # ---------------- TEMPERATURE COMMAND ----------------
 
     match = re.search(r"set ac to (\d+)", text)
 
     if match:
-
         temp = int(match.group(1))
-
         return {
             "intent": "multi_device",
             "actions": [
@@ -147,24 +154,23 @@ def detect_intent(text):
                 if word in text:
                     actions.append({"device": device, "action": "off"})
                     break
-            # ---------------- LIGHT CONTEXT COMMANDS ----------------
 
-            if "dark" in text or "too dark" in text or "its dark" in text:
-                return {
-                "intent": "multi_device",
-                "actions": [
-                {"device": "lights", "action": "on"}]}
-            if "cold" in text or "freezing" in text:
-                return {
-                "intent": "multi_device",
-                "actions": [{"device": "heater", "action": "on"}]
-                }
-            if "leaving the house" in text:
-                return {"intent": "mode", "mode": "away"}
-    
-    
+            # DEFAULT fallback (optional)
+            if device in text and not any(device == a["device"] for a in actions):
+                actions.append({"device": device, "action": "on"})
 
-    if actions:
-        return {"intent": "multi_device", "actions": actions}
+    # ---------------- REMOVE DUPLICATES ----------------
+
+    unique_actions = []
+    seen = set()
+
+    for a in actions:
+        key = (a["device"], a["action"])
+        if key not in seen:
+            seen.add(key)
+            unique_actions.append(a)
+
+    if unique_actions:
+        return {"intent": "multi_device", "actions": unique_actions}
 
     return {"intent": "unknown"}

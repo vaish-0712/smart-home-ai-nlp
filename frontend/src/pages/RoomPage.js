@@ -2,6 +2,8 @@ import React from "react";
 
 function RoomPage({ title, devices, deviceList, refreshDevices }) {
 
+  const API = "http://127.0.0.1:8000"; // ✅ LOCALHOST
+
   const getIcon = (device) => {
     switch (device) {
       case "lights": return "💡";
@@ -23,7 +25,7 @@ function RoomPage({ title, devices, deviceList, refreshDevices }) {
     const text = `${action} ${device}`;
 
     try {
-      await fetch("https://web-production-b9b1b.up.railway.app/command", {
+      await fetch(`${API}/command`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

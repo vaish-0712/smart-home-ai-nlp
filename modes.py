@@ -17,6 +17,11 @@ def movie_mode():
     update_device("tv", "on")
     update_device("speaker", "on")
     update_device("ac","on")
+    update_device("water_heater","off")
+    update_device("heater", "off")
+    update_device("door", "lock")
+    update_device("cameras","on")
+    update_device("alarm", "arm")
 
 
 def good_night_mode():
@@ -27,7 +32,7 @@ def good_night_mode():
     update_device("door", "lock")
     update_device("alarm", "arm")
     update_device("ac","on")
-    update_device("heater","off")
+    update_device("water_heater","off")
 
 
 def away_mode():

@@ -1,16 +1,19 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+
+import json
+import asyncio
 
 from nlp_engine import detect_intent
 from modes import good_night_mode, movie_mode, morning_mode, away_mode
-from state_manager import devices, update_device
+from state_manager import devices, update_device, energy_suggestions
 from logs import add_log, get_logs
-
 
 app = FastAPI()
 
-# CORS configuration
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,62 +22,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-# Request schema
+# ---------------- REQUEST MODEL ----------------
 class Command(BaseModel):
     text: str
 
 
 # ---------------- COMMAND API ----------------
-
 @app.post("/command")
 def process_command(cmd: Command):
 
     try:
+        print("\nCOMMAND:", cmd.text)
 
-        print("\n----------------------------")
-        print("COMMAND RECEIVED:", cmd.text)
-
-        # Detect NLP intent
         intent = detect_intent(cmd.text)
-
-        # Store command log
         add_log(cmd.text, intent)
 
-        print("INTENT DETECTED:", intent)
-
-        # ---------------- MODE EXECUTION ----------------
-
+        # ---------------- MODE ----------------
         if intent.get("intent") == "mode":
 
             mode = intent.get("mode")
 
             if mode == "good_night":
-                print("EXECUTING GOOD NIGHT MODE")
                 good_night_mode()
 
             elif mode == "movie":
-                print("EXECUTING MOVIE MODE")
                 movie_mode()
 
             elif mode == "morning":
-                print("EXECUTING MORNING MODE")
                 morning_mode()
 
             elif mode == "away":
-                print("EXECUTING AWAY MODE")
                 away_mode()
-
-            print("RESULT: MODE EXECUTED")
 
             return {
                 "message": "mode executed",
                 "devices": devices
             }
 
-        # ---------------- DEVICE EXECUTION ----------------
-
+        # ---------------- DEVICE ----------------
         if intent.get("intent") == "multi_device":
 
             actions = intent.get("actions", [])
@@ -84,14 +69,13 @@ def process_command(cmd: Command):
                 device = action["device"]
                 act = action["action"]
 
-                print(f"ACTION: {device} -> {act}")
+                # ✅ FIXED: always use update_device
+                if act == "set_temp":
+                    update_device(device, "set_temp", action.get("value"))
+                    update_device(device, "on")  # ensures energy tracking
 
-                update_device(device, act)
-
-            if len(actions) == 1:
-                print("RESULT: SINGLE DEVICE UPDATED")
-            else:
-                print("RESULT: MULTIPLE DEVICES UPDATED")
+                else:
+                    update_device(device, act)
 
             return {
                 "message": "devices updated",
@@ -99,37 +83,77 @@ def process_command(cmd: Command):
                 "devices": devices
             }
 
-        # ---------------- UNKNOWN COMMAND ----------------
-
-        print("RESULT: COMMAND NOT UNDERSTOOD")
-
+        # ---------------- UNKNOWN ----------------
         return {
             "message": "command not understood",
             "devices": devices
         }
 
     except Exception as e:
-
         print("ERROR:", str(e))
-
         return {
             "message": "internal error",
             "devices": devices
         }
 
 
-# ---------------- LOG API ----------------
+# ---------------- SSE STREAM ----------------
+async def event_generator():
+    try:
+        while True:
+            yield f"data: {json.dumps(devices)}\n\n"
+            await asyncio.sleep(1)
+    except asyncio.CancelledError:
+        print("SSE client disconnected cleanly")
+
+
+@app.get("/stream")
+def stream():
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream"
+    )
+
+
+# ---------------- ENERGY API ----------------
+@app.get("/energy")
+def get_energy():
+
+    total = 0
+
+    for device in devices:
+        total += devices[device].get("energy", 0)
+
+    cost_per_unit = 6  # ₹ per kWh
+
+    return {
+        "total_energy": round(total, 3),
+        "estimated_bill": round(total * cost_per_unit, 2),
+        "devices": devices  # ✅ important for frontend
+    }
+
+
+# ---------------- ENERGY SUGGESTIONS ----------------
+@app.get("/energy-suggestions")
+def get_suggestions():
+    return {
+        "suggestions": energy_suggestions()
+    }
+
+
+# ---------------- OTHER APIs ----------------
+@app.get("/devices")
+def get_devices():
+    return devices
+
 
 @app.get("/logs")
 def view_logs():
     return get_logs()
 
 
-# ---------------- DEVICE STATE API ----------------
-
-@app.get("/devices")
-def get_devices():
-    return devices
 @app.get("/")
 def home():
-    return {"message": "Smart Home AI Backend Running"}
+    return {
+        "message": "Smart Home AI Backend Running"
+    }

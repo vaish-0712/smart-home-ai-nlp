@@ -2,16 +2,16 @@ import React, { useState } from "react";
 
 function ModeControls() {
 
-  const [modeResult, setModeResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const API = "http://127.0.0.1:8000";
 
   const runMode = async (mode) => {
 
     try {
-
       setLoading(true);
 
-      const response = await fetch("https://web-production-b9b1b.up.railway.app/command/", {
+      await fetch(`${API}/command`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -19,20 +19,14 @@ function ModeControls() {
         body: JSON.stringify({ text: mode })
       });
 
-      const data = await response.json();
-
-      setModeResult(data);
+      // ❌ No need to store result
+      // SSE will update UI automatically
 
     } catch (error) {
-
       console.error("Mode execution failed:", error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
@@ -42,8 +36,6 @@ function ModeControls() {
       <h2 className="text-xl font-bold mb-4 text-gray-800">
         Smart Modes
       </h2>
-
-      {/* MODE BUTTONS */}
 
       <div className="flex gap-4 flex-wrap">
 
@@ -77,52 +69,10 @@ function ModeControls() {
 
       </div>
 
-
-      {/* LOADING STATE */}
-
       {loading && (
-
         <div className="mt-4 text-gray-500">
           Executing mode...
         </div>
-
-      )}
-
-
-      {/* DEVICE STATUS AFTER MODE */}
-
-      {modeResult && modeResult.devices && (
-
-        <div className="mt-4 p-4 bg-white rounded-lg shadow">
-
-          <h3 className="font-bold mb-3 text-gray-700">
-            Devices After Mode Execution
-          </h3>
-
-          {Object.entries(modeResult.devices).map(([device, value]) => (
-
-            <div key={device} className="flex justify-between border-b py-2 text-gray-800">
-
-              <span className="capitalize">
-                {device.replace("_", " ")}
-              </span>
-
-              <span
-className={
-value.state === "on" || value.state === "unlocked"
-? "text-green-600 font-semibold"
-: "text-gray-600 font-semibold"
-}
->
-{value.state}
-</span>
-
-            </div>
-
-          ))}
-
-        </div>
-
       )}
 
     </div>

@@ -1,28 +1,28 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-function DeviceStatus({ devices, refreshDevices }) {
+function DeviceStatus({ devices }) {
 
-  useEffect(() => {
-    refreshDevices();
-  }, [refreshDevices]);
+  const API = "http://127.0.0.1:8000";
 
   const sendCommand = async (device, action) => {
 
-  const text =
-    action === "lock" || action === "unlock"
-      ? `${action} ${device}`
-      : `${action} ${device}`;
+    const text = `${action} ${device}`;
 
-  await fetch("https://web-production-b9b1b.up.railway.app/command/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text })
-  });
+    try {
+      await fetch(`${API}/command`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
 
-  refreshDevices();
-};
+      // ❌ NO refreshDevices (SSE handles updates)
+
+    } catch (error) {
+      console.error("Command failed:", error);
+    }
+  };
+
   const getIcon = (device) => {
-
     switch (device) {
       case "lights": return "💡";
       case "tv": return "📺";
@@ -36,7 +36,6 @@ function DeviceStatus({ devices, refreshDevices }) {
       case "door": return "🔐";
       default: return "⚙️";
     }
-
   };
 
   const rooms = {
@@ -55,8 +54,6 @@ function DeviceStatus({ devices, refreshDevices }) {
         Home Devices
       </h2>
 
-      {/* ROOM GRID */}
-
       <div className="grid md:grid-cols-2 gap-6">
 
         {Object.keys(rooms).map((room) => (
@@ -64,7 +61,7 @@ function DeviceStatus({ devices, refreshDevices }) {
           <div
             key={room}
             className="bg-white/20 backdrop-blur-md p-5 rounded-xl shadow-lg 
-hover:shadow-2xl hover:-translate-y-1 transition duration-300"
+            hover:shadow-2xl hover:-translate-y-1 transition duration-300"
           >
 
             <h3 className="text-lg font-semibold mb-4 text-white">
@@ -75,27 +72,30 @@ hover:shadow-2xl hover:-translate-y-1 transition duration-300"
 
               {rooms[room].map((device) => {
 
-                if (!devices[device]) return null;
+                if (!devices || !devices[device]) return null;
+
+                const state = devices[device].state;
 
                 return (
 
                   <div
                     key={device}
-                    className="flex justify-between items-center p-4 bg-white/40 rounded-lg 
-hover:scale-[1.02] hover:bg-white/50 transition duration-200"
+                    className={`flex justify-between items-center p-4 rounded-lg transition duration-200
+                      ${state === "on" || state === "unlocked"
+                        ? "bg-green-200"
+                        : "bg-white/40"
+                      }`}
                   >
 
                     <div>
 
                       <div className="font-semibold text-gray-900">
-
                         {getIcon(device)}{" "}
                         {device.replace("_", " ").toUpperCase()}
-
                       </div>
 
                       <div className="text-sm text-gray-700">
-                        State: {devices[device].state}
+                        State: {state}
                       </div>
 
                     </div>
@@ -103,49 +103,37 @@ hover:scale-[1.02] hover:bg-white/50 transition duration-200"
                     <div className="flex gap-2">
 
                       {device === "door" ? (
-
                         <>
-
                           <button
-                            className="bg-green-500 text-white px-3 py-1 rounded-lg 
-hover:bg-green-600 active:scale-95 transition"
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg"
                             onClick={() => sendCommand(device, "lock")}
                           >
                             LOCK
                           </button>
 
                           <button
-                           className="bg-red-500 text-white px-3 py-1 rounded-lg 
-hover:bg-red-600 active:scale-95 transition"
+                            className="bg-red-500 text-white px-3 py-1 rounded-lg"
                             onClick={() => sendCommand(device, "unlock")}
                           >
                             UNLOCK
                           </button>
-
                         </>
-
                       ) : (
-
                         <>
-
                           <button
-                            className="bg-green-500 text-white px-3 py-1 rounded-lg 
-hover:bg-green-600 active:scale-95 transition"
+                            className="bg-green-500 text-white px-3 py-1 rounded-lg"
                             onClick={() => sendCommand(device, "turn on")}
                           >
                             ON
                           </button>
 
                           <button
-                            className="bg-red-500 text-white px-3 py-1 rounded-lg 
-hover:bg-red-600 active:scale-95 transition"
+                            className="bg-red-500 text-white px-3 py-1 rounded-lg"
                             onClick={() => sendCommand(device, "turn off")}
                           >
                             OFF
                           </button>
-
                         </>
-
                       )}
 
                     </div>

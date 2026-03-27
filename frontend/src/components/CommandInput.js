@@ -1,96 +1,72 @@
 import React, { useState } from "react";
 
-function CommandInput({ refreshDevices, refreshLogs }) {
+function CommandInput({ refreshLogs }) {
 
   const [command, setCommand] = useState("");
   const [status, setStatus] = useState("");
   const [listening, setListening] = useState(false);
 
+  const API = "http://127.0.0.1:8000";
+
   const sendCommand = async (text) => {
 
-  const commandText = text || command;
+    const commandText = text || command;
+    if (!commandText.trim()) return;
 
-  if (!commandText.trim()) return;
+    try {
 
-  try {
+      const response = await fetch(`${API}/command`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: commandText })
+      });
 
-    const response = await fetch("https://web-production-b9b1b.up.railway.app/command/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: commandText })
-});
+      const data = await response.json();
 
-    const data = await response.json();
-    // SMART SPEECH RESPONSE
+      // 🔊 SMART SPEECH
+      if (data.actions && data.actions.length > 0) {
+        const action = data.actions[0];
+        const device = action.device.replace("_", " ");
+        const act = action.action;
 
-if (data.actions && data.actions.length > 0) {
+        if (act === "on") speak(`${device} turned on`);
+        else if (act === "off") speak(`${device} turned off`);
+        else if (act === "lock") speak(`${device} locked`);
+        else if (act === "unlock") speak(`${device} unlocked`);
+        else if (act === "arm") speak(`${device} armed`);
+        else if (act === "disarm") speak(`${device} disarmed`);
+      }
 
-  const action = data.actions[0];
-  const device = action.device.replace("_", " ");
-  const act = action.action;
+      if (data.message === "mode executed") {
+        setStatus(`🎬 "${commandText}" mode activated`);
+        speak(`${commandText} mode activated`);
+      } else {
+        speak("Command executed");
+      }
 
-  if (act === "on") {
-    speak(`${device} turned on`);
-  }
+      setStatus(`✅ "${commandText}" executed`);
+      setCommand("");
 
-  else if (act === "off") {
-    speak(`${device} turned off`);
-  }
+      // ❌ REMOVE THIS (SSE handles devices)
+      // refreshDevices();
 
-  else if (act === "lock") {
-    speak(`${device} locked`);
-  }
+      // ✅ KEEP ONLY LOGS
+      if (refreshLogs) refreshLogs();
 
-  else if (act === "unlock") {
-    speak(`${device} unlocked`);
-  }
+    } catch (error) {
+      console.error(error);
+      setStatus("⚠ Backend connection error");
+      speak("Backend connection error");
+    }
+  };
 
-  else if (act === "arm") {
-    speak(`${device} armed`);
-  }
-
-  else if (act === "disarm") {
-    speak(`${device} disarmed`);
-  }
-
-}
-
-
-
-if (data.message === "mode executed") {
-  setStatus(`🎬 "${commandText}" mode activated`);
-  speak(`${commandText} mode activated`);
-}
-
-else {
-
-  speak("Command executed");
-
-}
-
-
-    setStatus(`✅ "${commandText}" executed`);
-
-    setCommand("");
-
-    refreshDevices();
-    refreshLogs();
-
-  } catch (error) {
-
-    setStatus("⚠ Backend connection error");
-    speak("Backend connection error");
-
-  }
-
-};
   const startVoiceRecognition = () => {
 
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Speech recognition not supported in this browser");
+      alert("Speech recognition not supported");
       return;
     }
 
@@ -101,49 +77,39 @@ else {
     recognition.interimResults = false;
 
     setListening(true);
-
     recognition.start();
 
     recognition.onresult = (event) => {
-
       const speechText = event.results[0][0].transcript;
-
       setCommand(speechText);
-
       sendCommand(speechText);
     };
 
-    recognition.onend = () => {
-      setListening(false);
-    };
-
+    recognition.onend = () => setListening(false);
   };
 
   function speak(text) {
+    if (!window.speechSynthesis) return;
 
-  const speech = new SpeechSynthesisUtterance(text);
+    const speech = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
 
-  const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(
+      (voice) =>
+        voice.name.includes("Samantha") ||
+        voice.name.includes("Google")
+    );
 
-  // choose a good voice
-  const preferredVoice = voices.find(
-    voice => voice.name.includes("Samantha") || voice.name.includes("Google")
-  );
+    if (preferredVoice) speech.voice = preferredVoice;
 
-  if (preferredVoice) {
-    speech.voice = preferredVoice;
+    speech.rate = 0.95;
+    speech.pitch = 1;
+    speech.volume = 1;
+
+    window.speechSynthesis.speak(speech);
   }
 
-  speech.rate = 0.95;
-  speech.pitch = 1;
-  speech.volume = 1;
-
-  window.speechSynthesis.speak(speech);
-
-}
-
   return (
-
     <div>
 
       <h2>Command Center</h2>
@@ -153,20 +119,14 @@ else {
         value={command}
         onChange={(e) => setCommand(e.target.value)}
         placeholder="Enter command..."
-        style={{ padding: "8px", width: "300px" ,color: "black"  }}
+        style={{ padding: "8px", width: "300px", color: "black" }}
       />
 
-      <button
-        onClick={() => sendCommand()}
-        style={{ marginLeft: "10px", padding: "8px 15px" }}
-      >
+      <button onClick={() => sendCommand()}>
         Send
       </button>
 
-      <button
-        onClick={startVoiceRecognition}
-        style={{ marginLeft: "10px", padding: "8px 15px" }}
-      >
+      <button onClick={startVoiceRecognition}>
         🎤 {listening ? "Listening..." : "Voice"}
       </button>
 
@@ -177,7 +137,6 @@ else {
       )}
 
     </div>
-
   );
 }
 
