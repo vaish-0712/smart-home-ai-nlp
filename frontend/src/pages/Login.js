@@ -1,56 +1,61 @@
 import React, { useState } from "react";
 
-
 function Login({ setLoggedIn }) {
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-
+  // ✅ SAFE SPEAK FUNCTION (NO CRASH)
   function speak(text) {
-    const speech = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-     // choose a good voice
-  const preferredVoice = voices.find(
-    voice => voice.name.includes("Samantha") || voice.name.includes("Google")
-  );
+    if (typeof window === "undefined") return;
 
-  if (preferredVoice) {
-    speech.voice = preferredVoice;
-  }
+    if (!window.speechSynthesis) return;
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    const voices = window.speechSynthesis.getVoices();
+
+    if (voices && voices.length > 0) {
+      const preferredVoice = voices.find(
+        (voice) =>
+          voice.name.includes("Samantha") ||
+          voice.name.includes("Google")
+      );
+
+      if (preferredVoice) {
+        speech.voice = preferredVoice;
+      }
+    }
+
     speech.lang = "en-US";
     speech.rate = 1;
     speech.pitch = 1;
+
     window.speechSynthesis.speak(speech);
-
-}
-
-  const handleLogin = () => {
-
-  const demoUser = "admin";
-  const demoPass = "1234";
-
-  if (username === demoUser && password === demoPass) {
-
-    setLoggedIn(true);
-
-    speak("Welcome to your smart home Vaishnavi");
-
-  } else {
-
-    setError("Invalid username or password");
-
   }
 
-};
+  const handleLogin = () => {
+    const demoUser = "admin";
+    const demoPass = "1234";
+
+    if (username === demoUser && password === demoPass) {
+      setLoggedIn(true);
+
+      // ✅ SAFE CALL
+      setTimeout(() => {
+        speak("Welcome to your smart home Vaishnavi");
+      }, 300);
+
+    } else {
+      setError("Invalid username or password");
+    }
+  };
 
   return (
-
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
-
+      
       <div className="bg-white p-8 rounded-xl shadow-lg w-96">
-
+        
         <h1 className="text-3xl font-bold text-center mb-6">
           Welcome to Your Smart Home
         </h1>
@@ -60,7 +65,7 @@ function Login({ setLoggedIn }) {
           placeholder="Username"
           className="w-full border p-2 rounded mb-4"
           value={username}
-          onChange={(e)=>setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
 
         <input
@@ -68,7 +73,7 @@ function Login({ setLoggedIn }) {
           placeholder="Password"
           className="w-full border p-2 rounded mb-4"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         {error && (

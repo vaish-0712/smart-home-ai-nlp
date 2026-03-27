@@ -18,7 +18,7 @@ function App() {
   const refreshDevices = useCallback(async () => {
 
     try {
-      const response = await fetch("https://web-production-b9b1b.up.railway.app/devices/");
+      const response = await fetch("https://web-production-b9b1b.up.railway.app/devices");
       const data = await response.json();
       setDevices(data);
     } catch (error) {
